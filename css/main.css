@@ -112,8 +112,6 @@ pre {
  * Wrapper
  */
 .wrapper {
-  max-width: -webkit-calc(800px - (30px * 2));
-  max-width: calc(800px - (30px * 2));
   margin-right: auto;
   margin-left: auto;
   padding-right: 30px;
@@ -124,6 +122,10 @@ pre {
       max-width: calc(800px - (30px));
       padding-right: 15px;
       padding-left: 15px; } }
+
+.page-content .wrapper {
+  max-width: -webkit-calc(800px - (30px * 2));
+  max-width: calc(800px - (30px * 2)); }
 
 /**
  * Clearfix
