@@ -75,26 +75,33 @@
 <p>翻翻 RFC4880 ，看到 <a href="https://tools.ietf.org/html/rfc4880#section-11.1">Transferable Public Keys</a>。这时候我们发现导出的公钥其实包含了：</p>
 
 <ul>
-  <li>（主）公钥</li>
-  <li>…..（主公玥的其它成分）</li>
-  <li>零个或以上的 subkey 公钥</li>
-  <li>每个 subkey 后面附上相应签名</li>
+  <li>One Public-Key packet</li>
+  <li>Zero or more Subkey packets</li>
+  <li>After each Subkey packet, one Signature packet, plus optionally a revocation</li>
 </ul>
 
 <p>也就是说，用 <code class="highlighter-rouge">gpg --export</code> 导出的公玥，无论是针对 Primary 还是 subkey，都是包含了这个主密钥下的所有公玥。</p>
 
 <p>新建完一个主密钥后，gpg 会默认使用 Primary 进行签名，用 Subkey1 进行加密。所以当你新建一个 Subkey2 用于签名时，你必须重新导出并上传你的公玥，否则别人不知道你的 Subkey2 公钥，也就无法验证你的签名了。</p>
 
-<p>可以放心的是，这时新公玥的指纹是不会变的，因为 <a href="https://tools.ietf.org/html/rfc4880#section-12.2">Key IDs and Fingerprints</a> 里指出：</p>
+<p>可以放心的是，这时新导出的主公玥的指纹是不会变的，因为 <a href="https://tools.ietf.org/html/rfc4880#section-12.2">Key IDs and Fingerprints</a> 里指出：</p>
 
 <blockquote>
   <p>A V4 fingerprint is the 160-bit SHA-1 hash of the octet 0x99,
 followed by the two-octet packet length, followed by the entire
-Public-Key packet starting with the version field.  The Key ID is the
-low-order 64 bits of the fingerprint.</p>
+Public-Key packet starting with the version field.</p>
 </blockquote>
 
-<p>其中 <strong>entire Public-key packet</strong> 指的就是除了 subkey 之外的内容，所以只要主公钥不变，无论 subkey 怎么变化，导出公玥的指纹都是一样的。其他人导入你的新公玥时会自动更新原来的公玥，不会有重复或冲突的问题。</p>
+<p>这里并不包含任何 subkey 的元素，所以主公玥的指纹完全由自己所决定。</p>
+
+<p>值得注意的是 <a href="https://tools.ietf.org/html/rfc4880#section-11.1">Transferable Public Keys</a> 最后一部分写道：</p>
+
+<blockquote>
+  <p>Transferable public-key packet sequences may be concatenated to allow
+transferring multiple public keys in one operation.</p>
+</blockquote>
+
+<p>也就是说导出的公玥里所包含的主公玥和 subkey 是串联关系，绝对不会发生 subkey 的元素嵌套在主公玥里的情况。</p>
 
 
   </div>
