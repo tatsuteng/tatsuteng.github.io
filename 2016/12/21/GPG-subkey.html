@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>关于 GPG subkey 的公玥</title>
+  <meta name="description" content="在GnuPG快速使用指南中，作者介绍了基本的 GPG subkey 的管理方法。但是我看完之后并不理解：">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="/2016/12/21/GPG-subkey.html">
+  <link rel="alternate" type="application/rss+xml" title="Tatsuteng" href="/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Tatsuteng</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">关于 GPG subkey 的公玥</h1>
+    <p class="post-meta"><time datetime="2016-12-21T20:00:00+08:00" itemprop="datePublished">Dec 21, 2016</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>在<a href="https://www.mawenbao.com/note/gnupg.html">GnuPG快速使用指南</a>中，作者介绍了基本的 GPG subkey 的管理方法。但是我看完之后并不理解：</p>
+
+<ul>
+  <li>添加一个用于签名的 subkey 后，先前导入了我公钥的计算机如何验证新的 subkey？</li>
+  <li>像 CA 一样用主公玥验证 subkey？</li>
+  <li>不对，你总不能在每次加密和签名都粘一段带签名的 subkey 在后面吧。</li>
+</ul>
+
+<h4 id="section">解惑</h4>
+
+<p>翻翻 RFC4880 ，看到 <a href="https://tools.ietf.org/html/rfc4880#section-11.1">Transferable Public Keys</a>。这时候我们发现导出的公钥其实包含了：</p>
+
+<ul>
+  <li>（主）公钥</li>
+  <li>…..（主公玥的其它成分）</li>
+  <li>零个或以上的 subkey 公钥</li>
+  <li>每个 subkey 后面附上相应签名</li>
+</ul>
+
+<p>也就是说，用 <code class="highlighter-rouge">gpg --export</code> 导出的公玥，无论是针对 Primary 还是 subkey，都是包含了这个主密钥下的所有公玥。</p>
+
+<p>新建完一个主密钥后，gpg 会默认使用 Primary 进行签名，用 Subkey1 进行加密。所以当你新建一个 Subkey2 用于签名时，你必须重新导出并上传你的公玥，否则别人不知道你的 Subkey2 公钥，也就无法验证你的签名了。</p>
+
+<p>可以放心的是，这时新公玥的指纹是不会变的，因为 <a href="https://tools.ietf.org/html/rfc4880#section-12.2">Key IDs and Fingerprints</a> 里指出：</p>
+
+<blockquote>
+  <p>A V4 fingerprint is the 160-bit SHA-1 hash of the octet 0x99,
+followed by the two-octet packet length, followed by the entire
+Public-Key packet starting with the version field.  The Key ID is the
+low-order 64 bits of the fingerprint.</p>
+</blockquote>
+
+<p>其中 <strong>entire Public-key packet</strong> 指的就是除了 subkey 之外的内容，所以只要主公钥不变，无论 subkey 怎么变化，导出公玥的指纹都是一样的。其他人导入你的新公玥时会自动更新原来的公玥，不会有重复或冲突的问题。</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+  </body>
+
+</html>

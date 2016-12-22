@@ -5,9 +5,53 @@
     <description></description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 20 Dec 2016 09:25:41 +0800</pubDate>
-    <lastBuildDate>Tue, 20 Dec 2016 09:25:41 +0800</lastBuildDate>
+    <pubDate>Thu, 22 Dec 2016 11:06:51 +0800</pubDate>
+    <lastBuildDate>Thu, 22 Dec 2016 11:06:51 +0800</lastBuildDate>
     <generator>Jekyll v3.0.1</generator>
+    
+      <item>
+        <title>关于 GPG subkey 的公玥</title>
+        <description>&lt;p&gt;在&lt;a href=&quot;https://www.mawenbao.com/note/gnupg.html&quot;&gt;GnuPG快速使用指南&lt;/a&gt;中，作者介绍了基本的 GPG subkey 的管理方法。但是我看完之后并不理解：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;添加一个用于签名的 subkey 后，先前导入了我公钥的计算机如何验证新的 subkey？&lt;/li&gt;
+  &lt;li&gt;像 CA 一样用主公玥验证 subkey？&lt;/li&gt;
+  &lt;li&gt;不对，你总不能在每次加密和签名都粘一段带签名的 subkey 在后面吧。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;section&quot;&gt;解惑&lt;/h4&gt;
+
+&lt;p&gt;翻翻 RFC4880 ，看到 &lt;a href=&quot;https://tools.ietf.org/html/rfc4880#section-11.1&quot;&gt;Transferable Public Keys&lt;/a&gt;。这时候我们发现导出的公钥其实包含了：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;（主）公钥&lt;/li&gt;
+  &lt;li&gt;…..（主公玥的其它成分）&lt;/li&gt;
+  &lt;li&gt;零个或以上的 subkey 公钥&lt;/li&gt;
+  &lt;li&gt;每个 subkey 后面附上相应签名&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;也就是说，用 &lt;code class=&quot;highlighter-rouge&quot;&gt;gpg --export&lt;/code&gt; 导出的公玥，无论是针对 Primary 还是 subkey，都是包含了这个主密钥下的所有公玥。&lt;/p&gt;
+
+&lt;p&gt;新建完一个主密钥后，gpg 会默认使用 Primary 进行签名，用 Subkey1 进行加密。所以当你新建一个 Subkey2 用于签名时，你必须重新导出并上传你的公玥，否则别人不知道你的 Subkey2 公钥，也就无法验证你的签名了。&lt;/p&gt;
+
+&lt;p&gt;可以放心的是，这时新公玥的指纹是不会变的，因为 &lt;a href=&quot;https://tools.ietf.org/html/rfc4880#section-12.2&quot;&gt;Key IDs and Fingerprints&lt;/a&gt; 里指出：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;A V4 fingerprint is the 160-bit SHA-1 hash of the octet 0x99,
+followed by the two-octet packet length, followed by the entire
+Public-Key packet starting with the version field.  The Key ID is the
+low-order 64 bits of the fingerprint.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;其中 &lt;strong&gt;entire Public-key packet&lt;/strong&gt; 指的就是除了 subkey 之外的内容，所以只要主公钥不变，无论 subkey 怎么变化，导出公玥的指纹都是一样的。其他人导入你的新公玥时会自动更新原来的公玥，不会有重复或冲突的问题。&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 21 Dec 2016 20:00:00 +0800</pubDate>
+        <link>/2016/12/21/GPG-subkey.html</link>
+        <guid isPermaLink="true">/2016/12/21/GPG-subkey.html</guid>
+        
+        
+      </item>
     
   </channel>
 </rss>
